@@ -1,0 +1,35 @@
+<div class="container">
+    <h2>Orders</h2>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Cycle</th>
+          <th>Quantity</th>
+          <th>Total Price</th>
+          <th>Order Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of orders" (click)="onSelectOrder(order)">
+          <td>{{ order.id }}</td>
+          <td>{{ order.cycle.brand }}</td>
+          <td>{{ order.quantity }}</td>
+          <td>{{ order.totalPrice }}</td>
+          <td>{{ order.orderDate | date : "dd/MM/yyyy hh:mm:ss" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div *ngIf="selectedOrder" class="container mt-3">
+    <h3>Selected Order Details</h3>
+    <ul>
+      <li><strong>Order ID:</strong> {{ selectedOrder.id }}</li>
+      <li><strong>Cycle:</strong> {{ selectedOrder.cycle.brand }}</li>
+      <li><strong>Quantity:</strong> {{ selectedOrder.quantity }}</li>
+      <li><strong>Total Price:</strong> {{ selectedOrder.totalPrice }}</li>
+      <li><strong>Order Date:</strong> {{ selectedOrder.orderDate | date: 'short' }}</li>
+    </ul>
+  </div>
+  

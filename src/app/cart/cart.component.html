@@ -1,7 +1,26 @@
-<h2>Rented Cycles</h2>
-<ul>
-  <li *ngFor="let cycle of rentedCycles">
-    <!-- Display rented cycle details here -->
-    {{ cycle.brand }} - {{ cycle.model }} - {{ cycle.rentalDate }}
-  </li>
-</ul>
+<h2>{{ title }}</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Select</th>
+      <th>Cycle Name</th>
+      <th>Quantity</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let cart of cart">
+      <td>
+        <input type="checkbox" [value]="cart.id" (change)="onCheckboxChange($event)">
+      </td>
+      <td>{{ cart.cycle.brand }}</td>
+      <td>{{ cart.quantity }}</td>
+      <td>{{ cart.totalPrice }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<div>
+  <p>Total Price: {{ calculateTotalPrice() }}</p>
+  <button (click)="buyItems()">Buy</button>
+</div>
