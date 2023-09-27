@@ -15,11 +15,11 @@
       <td>
         <form method="post">
           <div class="input-group">
-            <input type="text" name="borrownumber" #Number class="form-control">
+            <input type="text" name="borrownumber" #Number class="form-control" style="width: 80px; margin-right: 20px;">
             <div class="input-group-append">
-              <button class="btn btn-primary" type="button" (click)="onBorrow(cycle.id, Number.value)">Borrow</button>
+              <!-- <button class="btn btn-primary" type="button" (click)="onBorrow(cycle.id, Number.value)">Borrow</button>
               <button class="btn btn-success" type="button" (click)="onRestock(cycle.id, Number.value)">Restock</button>
-              <button class="btn btn-warning" type="button" (click)="onReturn(cycle.id, Number.value)">Return</button>
+              <button class="btn btn-warning" type="button" (click)="onReturn(cycle.id, Number.value)">Return</button> -->
               <button class="btn btn-info" type="button" (click)="onRent(cycle.id, Number.value)">Rent</button>
             </div>
           </div>

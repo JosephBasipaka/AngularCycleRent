@@ -16,20 +16,27 @@
           <td>{{ order.cycle.brand }}</td>
           <td>{{ order.quantity }}</td>
           <td>{{ order.totalPrice }}</td>
-          <td>{{ order.orderDate | date : "dd/MM/yyyy hh:mm:ss" }}</td>
+          <td>{{ order.orderDate }}</td>
+          <td>
+            <span *ngIf="order.returned" class="badge bg-success">Returned</span>
+            <span *ngIf="!order.returned" class="badge bg-warning">Not Returned</span>
+          </td>
         </tr>
       </tbody>
     </table>
-  </div>
-  
-  <div *ngIf="selectedOrder" class="container mt-3">
+</div>
+
+<div *ngIf="selectedOrder" class="container mt-3">
     <h3>Selected Order Details</h3>
-    <ul>
-      <li><strong>Order ID:</strong> {{ selectedOrder.id }}</li>
-      <li><strong>Cycle:</strong> {{ selectedOrder.cycle.brand }}</li>
-      <li><strong>Quantity:</strong> {{ selectedOrder.quantity }}</li>
-      <li><strong>Total Price:</strong> {{ selectedOrder.totalPrice }}</li>
-      <li><strong>Order Date:</strong> {{ selectedOrder.orderDate | date: 'short' }}</li>
-    </ul>
-  </div>
-  
+    <ul class="list-group">
+      <li class="list-group-item"><strong>Order ID:</strong> {{ selectedOrder.id }}</li>
+      <li class="list-group-item"><strong>Cycle:</strong> {{ selectedOrder.cycle.brand }}</li>
+      <li class="list-group-item"><strong>Quantity:</strong> {{ selectedOrder.quantity }}</li>
+      <li class="list-group-item"><strong>Total Price:</strong> {{ selectedOrder.totalPrice }}</li>
+      <li class="list-group-item"><strong>Order Date:</strong> {{ selectedOrder.orderDate | date: 'short' }}</li>
+      <li class="list-group-item">
+          <strong>Remaining Balance:</strong> {{ calculateRemainingBalance(selectedOrder) }}
+          <button class="btn btn-primary" (click)="returnOrder(selectedOrder)">Pay</button>
+      </li>
+    </ul> 
+ </div>

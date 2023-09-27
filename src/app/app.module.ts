@@ -16,7 +16,7 @@ import { OrdersComponent } from './orders/orders.component';
     CyclesComponent,
     CartComponent,
     NavbarComponent,
-    OrdersComponent
+    OrdersComponent,
   ],
   imports: [
     BrowserModule,

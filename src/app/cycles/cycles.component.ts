@@ -1,146 +1,67 @@
 import { Component, OnInit } from '@angular/core';
 import { Cycles } from '../cycles';
+import { CycleService } from '../cycle.service';
 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { DataService } from '../data.service';
-
-//import { CYCLES } from '../mock-cycles';
 @Component({
   selector: 'app-cycles',
   templateUrl: './cycles.component.html',
   styleUrls: ['./cycles.component.css']
 })
-export class CyclesComponent {
+export class CyclesComponent implements OnInit {
   title = "Cycle Shop";
-  cycles : Cycles[] = [];
+  cycles: Cycles[] = [];
   rentedCycles: Cycles[] = [];
-  id : number = 1;
+  id: number = 1;
   totalPrice: number = 0;
   numberOfDays: number = 1;
-  
-  constructor(private http: HttpClient,private dataService: DataService) {}
+
+  constructor(private cycleService: CycleService) {}
 
   ngOnInit() {
-    this.http.get<Cycles[]>('http://localhost:8080/api/cycle/list')
-      .subscribe(cycles => {
-        this.cycles = cycles;
-        console.log(cycles);
-      });
-      // this.loadRentedCycles();
+    this.loadCycles();
   }
-  onRestock(id: number,value: string) {
-    let numVal = 0;
-    if(value!="")
-      numVal = parseInt(value);
-    const path = 'http://localhost:8080/api';
-    const followpath = 'restock';
-    const mainpath = `${path}/${id}/${followpath}?count=${numVal}`;
 
-  
-    this.http.post<Cycles[]>(mainpath,null).subscribe(cycles => {
+  loadCycles() {
+    this.cycleService.getCycles().subscribe((cycles) => {
       this.cycles = cycles;
     });
-}
-  onReturn(id:number,value:string){
-    let numVal = 0;
-    if(value!="")
-      numVal = parseInt(value);
-      const requestheaders = new HttpHeaders({
-        'Content-Type' : 'application/json'
-      });
-      const path = 'http://localhost:8080/api';
-      const followpath = 'return';
-    const mainpath = `${path}/${id}/${followpath}?count=${numVal}`;
-    this.http.post<Cycles[]>(mainpath,null,{
-        responseType : 'json'
-      }).subscribe(cycles => {
-      this.cycles = cycles;
-
-    });
   }
-onBorrow(id: number,value : string) {
-  let numVal = 0;
-    if(value!="")
-      numVal = parseInt(value);
-      const requestheaders = new HttpHeaders({
-        'Content-Type' : 'application/json'
-      });
-      const path = 'http://localhost:8080/api';
-      const followpath = 'borrow';
-      const mainpath = `${path}/${id}/${followpath}?count=${numVal}`;
-      this.http.post<Cycles[]>(mainpath,null,{
-        responseType : 'json'
-      }).subscribe(cycles => {
-        this.cycles = cycles;
-        
-      });
-    }
-    // loadRentedCycles() {
-  onRent(id: number, value: string) {
+
+  onRestock(id: number, value: string) {
     let numVal = 0;
-    if (value != "") {
-      numVal = parseInt(value);
-    }
-    const requestheaders = new HttpHeaders({
-      'Content-Type' : 'application/json'
-    });
-    const path = 'http://localhost:8080/api';
-    const followpath = 'rent';
-    const mainpath = `${path}/${id}/${followpath}?count=${numVal}`;
+    if (value !== "") numVal = parseInt(value);
     
-    this.http.post<Cycles[]>(mainpath,null,{
-      responseType : 'json'
-    }).subscribe(cycles => {
-    this.cycles = cycles;
-  });
+    this.cycleService.restockCycle(id, numVal).subscribe((cycles) => {
+      this.cycles = cycles;
+    });
   }
-//   // Make an HTTP request to get the rented cycles data.
-//   // Update this URL to match your API endpoint for rented cycles.
-//   this.http.get<Cycles[]>('http://localhost:8080/api/cart').subscribe((cycles) => {
-//     this.rentedCycles = cycles;
-//     this.calculateTotalPrice();
-//   });
-// }
-// calculateTotalPrice() {
-//   this.totalPrice = this.numberOfDays * 50;
-// }
-// onNumberOfDaysChange() {
-//   this.calculateTotalPrice();
-// }
 
-   
-// openCart(id: number):void {
-//   const selectedCycle = this.cycles.find(cycle => cycle.id === id);
-//   if (selectedCycle) {
-//     this.rentedCycles.push(selectedCycle);
-//     this.dataService.updateRentedCycles(selectedCycle);
-//     localStorage.setItem("cart",JSON.stringify(selectedCycle))
-//     console.log(selectedCycle);
-//     console.log(this.rentedCycles);
-//     }
-//     window.open('http://localhost:4200/api/cart', '_blank');
-  
-// }
-// }
-// openCart(id: number, quantity: number): void {
-//   this.addToCart(id, quantity);
-// }
+  onReturn(id: number, value: string) {
+    let numVal = 0;
+    if (value !== "") numVal = parseInt(value);
 
-// private addToCart(id: number, quantity: number): void {
-//   this.http.post('http://localhost:8080/api/cart/add', { cycleId: id, quantity }).subscribe(() => {
-//     this.loadRentedCycles();
-//   });
-// }
+    this.cycleService.returnCycle(id, numVal).subscribe((cycles) => {
+      this.cycles = cycles;
+    });
+  }
 
-// loadRentedCycles() {
-//   this.http.get<Cycles[]>('http://localhost:8080/api/cycle/list').subscribe(cycles => {
-//     this.rentedCycles = cycles;
-//     // this.calculateTotalPrice();
-//   });
-// }
+  onBorrow(id: number, value: string) {
+    let numVal = 0;
+    if (value !== "") numVal = parseInt(value);
 
-calculatePrice() {
-  this.totalPrice = this.rentedCycles.reduce((total, cycle) => total + (cycle.price * cycle.quantity), 0);
-}
+    this.cycleService.borrowCycle(id, numVal).subscribe((cycles) => {
+      this.cycles = cycles;
+    });
+  }
 
+  onRent(id: number, value: string) {
+    let numVal = 1;
+    if (value !== "") {
+      numVal = parseInt(value);
+    }
+
+    this.cycleService.rentCycle(id, numVal).subscribe((cycles) => {
+      this.cycles = cycles;
+    });
+  }
 }
