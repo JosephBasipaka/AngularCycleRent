@@ -21,6 +21,8 @@ public class Orders {
 
     private int quantity;
     private double totalPrice;
-    private LocalDateTime orderDate; 
+    private LocalDateTime orderDate;
+    private LocalDateTime closedDate;
+    private boolean returned;
 }
 

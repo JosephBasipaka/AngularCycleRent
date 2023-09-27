@@ -2,6 +2,7 @@ package com.talentsprint.cycleshop.controller;
 
 import java.security.Principal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,9 +20,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +39,8 @@ import com.talentsprint.cycleshop.repository.UserRepository;
 import com.talentsprint.cycleshop.service.CartService;
 import com.talentsprint.cycleshop.service.CycleService;
 import com.talentsprint.cycleshop.service.OrderService;
+
+import jakarta.persistence.criteria.Order;
 
 @RestController
 @RequestMapping("/api")
@@ -64,6 +69,25 @@ public class CycleRestController {
 		return "userRegistration";
 
 	}
+	@PostMapping("/register")
+    public ResponseEntity<String> registerUser(@RequestBody User user) {
+        try {
+            if (userRepository.existsByName(user.getName())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already exists");
+            }
+            user.setName(user.getName());
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setRole(user.getRole());
+            userRepository.save(user);
+            return ResponseEntity.ok("User registered successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Registration failed: " + e.getMessage());
+
+        }
+
+ 
+
+    }
 	@PostMapping("/{id}/borrow")
     public List<Cycle> borrowCycle(@PathVariable long id, @RequestParam(required=false, defaultValue="1") int count) {
         cycleService.borrowCycle(id, count);
@@ -112,51 +136,79 @@ public class CycleRestController {
 		//System.out.println(jwt.getClaimAsString("scope"));
 		return cycleService.listCycles();
 	}
-//	@PostMapping("/cart/add")
-//	public ResponseEntity<String> addToCart(@RequestParam long cycleId, @RequestParam int quantity) {
-//	    double totalPrice = cartService.calculateTotalPrice(cycleId, quantity);
-//
-//	    Cart cartItem = new Cart();
-//	    cartItem.setCycleId(cycleId);
-//	    cartItem.setQuantity(quantity);
-////	    cartItem.setTotalPrice(totalPrice);
-//
-//	    cartService.addToCart(cartItem);
-//	
-//	    return ResponseEntity.ok("Cycle added to cart successfully.");
-//	}
-//
-//	@GetMapping("/cart")
-//	public List<Cart> getCartItems() {
-//	    List<Cart> cartItems = cartService.getCartItems();
-//	    return cartItems;
-//	}
 	@PostMapping("/{id}/rent")
 	public List<Cycle> rentCycle(@PathVariable long id, @RequestParam(required = false, defaultValue = "1") int count) {
-	
-	        cycleService.rentCycle(id, count);
+		Optional<Cart> existingCartItemOptional = cartService.getCartItemByCycleId(id);
+    if (existingCartItemOptional.isPresent()) {
+    	cycleService.rentCycle(id, count);
+        Cart existingCartItem = existingCartItemOptional.get();
+        existingCartItem.setQuantity(existingCartItem.getQuantity() + count);
+        existingCartItem.setTotalPrice(existingCartItem.getTotalPrice() + (existingCartItem.getCycle().getPrice() * count));
+        cartService.updateCartItem(existingCartItem);
+    } else {
+    	cycleService.rentCycle(id, count);
 	        Cart cartItem = new Cart();
 	        cartItem.setCycle(cycleService.findByIdOrThrow404(id));
 	        cartItem.setQuantity(count);
 	        cartItem.setTotalPrice((double)(cycleService.findByIdOrThrow404(id).getPrice()*count));
 	        cartService.addToCart(cartItem);
-	        return all();
-	    
+    	}
+    return all();
 	}
-
+//	@GetMapping("/login")
+//    public String LoginForm(Model model) {
+//        return "userLogin";
+//    }
+//
+//    @PostMapping("/login")
+//    public String LoginonSubmit(@RequestParam String username, @RequestParam String password, Model model) {
+//        Optional<User> user = userRepository.findByName(username);
+//        if (user != null && userMatchesPassword(user.get(), password)) {
+//            return "redirect:/cycle/list";
+//        } else {
+//            model.addAttribute("error", "Invalid Crudentials");
+//            return "userLogin";
+//        }
+//    }
 	@PostMapping("/orders")
 	public ResponseEntity<Map<String,String>> createOrders(@RequestBody List<Orders> orders) {
    	 	List<Orders> createdOrders = orderService.createOrder(orders);
-   	 	List<Long> itemIdsToDelete = orders.stream()
-            .map(order -> order.getCycle().getId())
-            .collect(Collectors.toList());
-   	 	
-        cartService.deleteItemsFromCart(itemIdsToDelete);
     	Map<String, String> response = new HashMap<>();
 	    response.put("message", "Orders created successfully");
 	    response.put("orderCount", String.valueOf(createdOrders.size())); 
 	    return ResponseEntity.ok(response);
-}
-
+		}
+		
+		@DeleteMapping("/delCart")
+		public List<Long> clearCart(@RequestBody List<Long> itemIdsToDelete) {
+			cartService.deleteItemsFromCart(itemIdsToDelete);
+			return itemIdsToDelete;
+		}
+		
+		@DeleteMapping("/cart/{id}")
+		public Long removeItemFromCart(@PathVariable Long id) {
+			cartService.removeFromCart(id);
+			return id;
+		}
+	@PutMapping("/orders/{orderId}/return")
+	public ResponseEntity<Orders> markOrderAsReturned(@PathVariable long orderId) {
+	    Optional<Orders> orderOptional = orderService.findById(orderId);
+	    Orders order =  orderOptional.get();
+	    if (orderOptional.isPresent()) {
+	        
+	        order.setReturned(true);
+	        LocalDateTime paidTime = LocalDateTime.now();
+	        order.setClosedDate(paidTime);
+	        orderService.save(order);
+	        
+	    } 
+	    return ResponseEntity.ok(order);
+	}
+	
+	
+	private boolean userMatchesPassword(User user, String password) {
+		return user.getPassword().equals(password);
+		
+	}
 
 }

@@ -9,6 +9,8 @@ import com.talentsprint.cycleshop.entity.Cart;
 import com.talentsprint.cycleshop.entity.Cycle;
 import com.talentsprint.cycleshop.repository.CartRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class CartService {
 
@@ -22,12 +24,19 @@ public class CartService {
             cartRepository.save(cartItem);
         
     }
-
+    public Optional<Cart> getCartItemByCycleId(long cycleId) {
+        return cartRepository.findByCycleId(cycleId);
+    }
+	public void updateCartItem(Cart cartItem) {
+        cartRepository.save(cartItem);
+    }
     public List<Cart> getCartItems() {
         return cartRepository.findAll();
     }
-
+    
+    @Transactional
     public void removeFromCart(long cartItemId) {
+    	System.out.println("hii");
         cartRepository.deleteById(cartItemId);
     }
 
@@ -35,10 +44,8 @@ public class CartService {
         return price * quantity;
     }
     
+    @Transactional
     public void deleteItemsFromCart(List<Long> cartItemId) {
-    	System.out.println("deleted");
-    	System.out.println(cartItemId);
-    	List<Cart> itemsToDelete = cartRepository.findByIdIn(cartItemId);
-    	cartRepository.deleteAll(itemsToDelete);
+    	cartRepository.deleteByIdIn(cartItemId);
     }
 }

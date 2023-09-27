@@ -25,10 +25,18 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthen
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -36,10 +44,12 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import com.talentsprint.cycleshop.entity.Orders;
 import com.talentsprint.cycleshop.service.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
+@EnableTransactionManagement
 public class BasicConfiguration {
 
     @Value("${jwt.public.key}")
@@ -47,6 +57,9 @@ public class BasicConfiguration {
 
 	@Value("${jwt.private.key}")
 	RSAPrivateKey priv;
+	
+	@Autowired
+	private CorsConfig corsConfig;
     
     @Autowired
     private CustomUserDetailsService userDetailsService;
@@ -67,9 +80,9 @@ public class BasicConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.disable())
+            .cors(cors -> cors.configurationSource(corsConfig))
             .authorizeHttpRequests((requests) -> requests
-            .requestMatchers("/api/register", "/api/cycle/list","/api/orders","/orders","/api/{id}/rent", "/api/{id}/restock","/api/{id}/borrow", "/api/{id}/return","/api/cart","/api/cart/add").permitAll()
+            .requestMatchers("/api/register", "/api/cycle/list","/api/login","/api/cart/{id}","/api/delCart","/api/orders","api/orders/{orderId}/return","/orders","/api/{id}/rent", "/api/{id}/restock","/api/{id}/borrow", "/api/{id}/return","/api/cart","/api/cart/add","/cart").permitAll()
             .anyRequest().authenticated())
             .logout(withDefaults())
             .httpBasic(withDefaults())

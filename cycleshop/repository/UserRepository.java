@@ -8,4 +8,5 @@ import com.talentsprint.cycleshop.entity.User;
 
 public interface UserRepository extends CrudRepository<User, Long>{
     public Optional<User> findByName(String name);
+    public boolean existsByName(String name);
 }

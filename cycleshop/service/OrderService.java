@@ -6,16 +6,19 @@ import org.springframework.stereotype.Service;
 import com.talentsprint.cycleshop.entity.Orders;
 import com.talentsprint.cycleshop.repository.OrderRepository;
 
+import jakarta.persistence.criteria.Order;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderService {
 
+	@Autowired
     private final OrderRepository orderRepository;
 
-    @Autowired
     public OrderService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
@@ -29,9 +32,14 @@ public class OrderService {
         return orderRepository.saveAll(orders);
     }
 
-    // Get all orders
     public List<Orders> getAllOrders() {
         return orderRepository.findAll();
     }
-
+    
+    public void save(Orders order) {
+    	orderRepository.save(order);
+    }
+    public Optional<Orders> findById(long orderId){
+    	return orderRepository.findById(orderId);
+    }
 }
