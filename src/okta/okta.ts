@@ -1,0 +1,1 @@
+declare module "src/config/my-app-config";

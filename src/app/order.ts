@@ -7,4 +7,5 @@ export interface Order {
     totalPrice: number;
     orderDate?: Date; 
     returned: boolean;
+    closedDate? : Date;
   }

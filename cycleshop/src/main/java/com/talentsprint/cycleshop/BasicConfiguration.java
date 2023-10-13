@@ -82,7 +82,7 @@ public class BasicConfiguration {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfig))
             .authorizeHttpRequests((requests) -> requests
-            .requestMatchers("/api/register", "/api/cycle/list","/api/login","/api/cart/{id}","/api/delCart","/api/orders","api/orders/{orderId}/return","/orders","/api/{id}/rent", "/api/{id}/restock","/api/{id}/borrow", "/api/{id}/return","/api/cart","/api/cart/add","/cart").permitAll()
+            .requestMatchers("/api/register","/api/auth/token", "/api/cycle/list","/api/login","/api/cart/{id}","/api/delCart","/api/orders","api/orders/{orderId}/return","/orders","/api/{id}/rent", "/api/{id}/restock","/api/{id}/borrow", "/api/{id}/return","/api/cart","/api/cart/add","/cart").permitAll()
             .anyRequest().authenticated())
             .logout(withDefaults())
             .httpBasic(withDefaults())

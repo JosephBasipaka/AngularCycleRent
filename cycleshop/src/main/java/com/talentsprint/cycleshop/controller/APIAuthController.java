@@ -35,7 +35,7 @@ public class APIAuthController {
     AuthenticationManager authenticationManager;
 
     @PostMapping("/token")
-    public String token(@RequestBody LoginBody loginBody) {
+    public TokenDTO token(@RequestBody LoginBody loginBody) {
         Instant now = Instant.now();
         long expiry = 3600L;
         var username = loginBody.getUsername();
@@ -55,8 +55,17 @@ public class APIAuthController {
         TokenDTO t = new TokenDTO();
         t.setToken(this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue());
         t.setUsername(authentication.getName());
-        return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-//        return ResponseEntity.ok(t);
+//        return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        return t;
     }
-
+    
+    @PostMapping("/tokenSet")
+    public TokenDTO setToken(@RequestBody TokenDTO token) {
+    	System.out.println("heyy");
+    	TokenDTO tokenSet = new TokenDTO();
+    	tokenSet.setToken(token.getToken());
+    	tokenSet.setUsername(token.getUsername());
+    	System.out.println("All set");
+    	return tokenSet;
+    }
 }

@@ -30,13 +30,14 @@
     <h3>Selected Order Details</h3>
     <ul class="list-group">
       <li class="list-group-item"><strong>Order ID:</strong> {{ selectedOrder.id }}</li>
-      <li class="list-group-item"><strong>Cycle:</strong> {{ selectedOrder.cycle.brand }}</li>
+      <li class="list-group-item"><strong>Cycle:</strong> {{ selectedOrder.cycle.brand | uppercase}}</li>
       <li class="list-group-item"><strong>Quantity:</strong> {{ selectedOrder.quantity }}</li>
       <li class="list-group-item"><strong>Total Price:</strong> {{ selectedOrder.totalPrice }}</li>
-      <li class="list-group-item"><strong>Order Date:</strong> {{ selectedOrder.orderDate | date: 'short' }}</li>
-      <li class="list-group-item">
+      <li class="list-group-item"><strong>Order Date:</strong> {{ selectedOrder.orderDate | date: 'dd-MM-yyyy hh:mm:ss' }}</li>
+      <li class="list-group-item" *ngIf="!selectedOrder.returned">
           <strong>Remaining Balance:</strong> {{ calculateRemainingBalance(selectedOrder) }}
           <button class="btn btn-primary" (click)="returnOrder(selectedOrder)">Pay</button>
       </li>
+      <li class="list-group-item" *ngIf="selectedOrder.returned"><strong>Order Returned Date:</strong> {{ selectedOrder.closedDate | date : 'dd-MM-yyyy hh:mm:ss' }}</li>
     </ul> 
  </div>

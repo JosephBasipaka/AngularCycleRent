@@ -12,21 +12,21 @@ export class OrderService {
 
   constructor(private http: HttpClient,private cycleServie: CycleService) {}
 
-  loadOrders(): Observable<Order[]>{
-    return this.http.get<Order[]>(this.apiUrl);
-  }
-  markOrderAsReturned(orderId: number): Observable<any> {
-    const url = `${this.apiUrl}/${orderId}/return`;
-    return this.http.put(url, {});
-  }
-  // loadOrders(): Observable<Order[]> {
-  //   const headers = this.cycleServie.getHeaders();
-  //   return this.http.get<Order[]>(this.apiUrl, { headers });
+  // loadOrders(): Observable<Order[]>{
+  //   return this.http.get<Order[]>(this.apiUrl);
   // }
-
   // markOrderAsReturned(orderId: number): Observable<any> {
-  //   const headers = this.cycleServie.getHeaders();
   //   const url = `${this.apiUrl}/${orderId}/return`;
-  //   return this.http.put(url, {}, { headers });
+  //   return this.http.put(url, {});
   // }
+  loadOrders(): Observable<Order[]> {
+    const headers = this.cycleServie.getHeaders();
+    return this.http.get<Order[]>(this.apiUrl, { headers });
+  }
+
+  markOrderAsReturned(orderId: number): Observable<any> {
+    const headers = this.cycleServie.getHeaders();
+    const url = `${this.apiUrl}/${orderId}/return`;
+    return this.http.put(url, {}, { headers });
+  }
 }

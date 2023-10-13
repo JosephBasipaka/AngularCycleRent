@@ -1,6 +1,7 @@
 package com.talentsprint.cycleshop.controller;
 
 import java.security.Principal;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -84,9 +85,6 @@ public class CycleRestController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Registration failed: " + e.getMessage());
 
         }
-
- 
-
     }
 	@PostMapping("/{id}/borrow")
     public List<Cycle> borrowCycle(@PathVariable long id, @RequestParam(required=false, defaultValue="1") int count) {
@@ -108,9 +106,9 @@ public class CycleRestController {
     }
 
     @GetMapping("/list")
-    public List<Cycle> listAvailableCycles(Model model) {
-        var allCycles = cycleService.listAvailableCycles();
-        model.addAttribute("allCycles", allCycles);
+    public List<Cycle> listAvailableCycles() {
+    	var allCycles = cycleService.listAvailableCycles();
+//    	model.addAttribute("allCycles", allCycles);
         return all();
     }
 
@@ -132,12 +130,12 @@ public class CycleRestController {
 
 	@GetMapping("/cycle/list")
 	public List<Cycle> all() {
-		//Jwt jwt = (Jwt) authentication.getPrincipal();
-		//System.out.println(jwt.getClaimAsString("scope"));
+//		Jwt jwt = (Jwt) authentication.getPrincipal();
+//		System.out.println(jwt.getClaimAsString("scope"));
 		return cycleService.listCycles();
 	}
 	@PostMapping("/{id}/rent")
-	public List<Cycle> rentCycle(@PathVariable long id, @RequestParam(required = false, defaultValue = "1") int count) {
+	public ResponseEntity<?> rentCycle(@PathVariable long id, @RequestParam(required = false, defaultValue = "1") int count) {
 		Optional<Cart> existingCartItemOptional = cartService.getCartItemByCycleId(id);
     if (existingCartItemOptional.isPresent()) {
     	cycleService.rentCycle(id, count);
@@ -153,7 +151,7 @@ public class CycleRestController {
 	        cartItem.setTotalPrice((double)(cycleService.findByIdOrThrow404(id).getPrice()*count));
 	        cartService.addToCart(cartItem);
     	}
-    return all();
+    return ResponseEntity.noContent().build();
 	}
 //	@GetMapping("/login")
 //    public String LoginForm(Model model) {

@@ -1,6 +1,9 @@
-<!-- <p>Login Form</p>
+<p>Login Form</p>
+<div *ngIf="user">
 <label for="username">Username: </label>
 <input type="text" name="username" id="username" #username ngModel><br>
 <label for="password">Password: </label>
 <input type="password" name="password" id="password" #password ngModel><br>
-<button type="button" (click)="login(username.value, password.value)">Login</button> -->
+<button type="button" (click)="login(username.value, password.value)">Login</button>
+</div>
+<button type="button">Logout</button>
